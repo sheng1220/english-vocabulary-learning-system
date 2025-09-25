@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英文單字資料處理工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            transition: border-color 0.3s;
+        }
+        
+        .section:hover {
+            border-color: #3498db;
+        }
+        
+        .section-title {
+            font-size: 1.2rem;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        .file-input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .file-label {
+            display: block;
+            padding: 15px 20px;
+            background: #3498db;
+            color: white;
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .file-label:hover {
+            background: #2980b9;
+        }
+        
+        .file-info {
+            margin-top: 10px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .api-keys {
+            display: grid;
+            gap: 15px;
+        }
+        
+        .api-key-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .api-key-label {
+            margin-bottom: 5px;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+        
+        .api-key-input {
+            padding: 12px;
+            border: 2px solid #ecf0f1;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .api-key-input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .process-btn {
+            width: 100%;
+            padding: 15px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .process-btn:hover:not(:disabled) {
+            background: #229954;
+        }
+        
+        .process-btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+        
+        .progress-section {
+            display: none;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #ecf0f1;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2980b9);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .progress-text {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .log {
+            max-height: 200px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+        
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 3px 0;
+        }
+        
+        .log-success {
+            color: #27ae60;
+        }
+        
+        .log-error {
+            color: #e74c3c;
+        }
+        
+        .log-info {
+            color: #3498db;
+        }
+        
+        .download-section {
+            display: none;
+            text-align: center;
+        }
+        
+        .download-btn {
+            display: inline-block;
+            padding: 15px 30px;
+            background: #e74c3c;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            transition: background-color 0.3s;
+        }
+        
+        .download-btn:hover {
+            background: #c0392b;
+        }
+        
+        .api-help {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>英文單字資料處理工具</h1>
+            <p>上傳 txt 檔案，自動生成包含發音、詞性的 JSON 檔案</p>
+        </div>
+        
+        <div class="content">
+            <div class="section">
+                <div class="section-title">📁 檔案上傳</div>
+                <div class="file-upload">
+                    <input type="file" id="fileInput" class="file-input" accept=".txt">
+                    <label for="fileInput" class="file-label">選擇 .txt 檔案</label>
+                </div>
+                <div class="file-info" id="fileInfo">尚未選擇檔案</div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">🔑 API 設定</div>
+                <div class="api-keys">
+                    <div class="api-key-group">
+                        <label class="api-key-label">Merriam-Webster API Key</label>
+                        <input type="text" id="merriamKey" class="api-key-input" placeholder="輸入您的 API Key">
+                        <div class="api-help">用於獲取美式發音 (可選，無 Key 時填入 N/A)</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <button id="processBtn" class="process-btn">開始處理</button>
+            </div>
+            
+            <div class="section progress-section" id="progressSection">
+                <div class="section-title">📊 處理進度</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text" id="progressText">準備中...</div>
+                <div class="log" id="logContainer"></div>
+            </div>
+            
+            <div class="section download-section" id="downloadSection">
+                <div class="section-title">✅ 處理完成</div>
+                <a href="#" id="downloadBtn" class="download-btn" download="vocabulary.json">下載 vocabulary.json</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let wordsData = [];
+        let processedData = { groups: {} };
+        let currentWord = 0;
+        
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const processBtn = document.getElementById('processBtn');
+        const progressSection = document.getElementById('progressSection');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const logContainer = document.getElementById('logContainer');
+        const downloadSection = document.getElementById('downloadSection');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const merriamKey = document.getElementById('merriamKey');
+        
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                fileInfo.textContent = `已選擇: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    parseTextFile(e.target.result);
+                };
+                reader.readAsText(file, 'utf-8');
+            }
+        });
+        
+        function parseTextFile(content) {
+            const lines = content.split('\n').map(line => line.trim()).filter(line => line);
+            let currentGroup = '';
+            let wordId = 1;
+            
+            wordsData = [];
+            processedData = { groups: {} };
+            
+            for (const line of lines) {
+                if (line.startsWith('#')) {
+                    currentGroup = line.substring(1).trim();
+                    if (!processedData.groups[currentGroup]) {
+                        processedData.groups[currentGroup] = [];
+                    }
+                } else if (line && currentGroup) {
+                    wordsData.push({
+                        id: wordId++,
+                        word: line,
+                        group: currentGroup
+                    });
+                }
+            }
+            
+            addLog(`解析完成: 找到 ${wordsData.length} 個單字，分為 ${Object.keys(processedData.groups).length} 組`, 'info');
+            processBtn.disabled = false;
+        }
+        
+        processBtn.addEventListener('click', async function() {
+            if (wordsData.length === 0) {
+                alert('請先上傳檔案！');
+                return;
+            }
+            
+            processBtn.disabled = true;
+            progressSection.style.display = 'block';
+            downloadSection.style.display = 'none';
+            logContainer.innerHTML = '';
+            currentWord = 0;
+            
+            addLog('開始處理單字資料...', 'info');
+            
+            for (let i = 0; i < wordsData.length; i++) {
+                const wordData = wordsData[i];
+                currentWord = i + 1;
+                
+                updateProgress();
+                addLog(`處理第 ${currentWord}/${wordsData.length} 個單字: ${wordData.word}`, 'info');
+                
+                try {
+                    const result = await processWord(wordData);
+                    processedData.groups[wordData.group].push(result);
+                    addLog(`✓ ${wordData.word} 處理完成`, 'success');
+                } catch (error) {
+                    addLog(`✗ ${wordData.word} 處理失敗: ${error.message}`, 'error');
+                    // 即使失敗也要添加基本資料
+                    processedData.groups[wordData.group].push({
+                        id: wordData.id,
+                        word: wordData.word,
+                        us_audio: "N/A",
+                        natural_audio: "N/A",
+                        pos: "N/A"
+                    });
+                }
+                
+                // 避免 API 限制，添加延遲
+                await sleep(100);
+            }
+            
+            addLog('所有單字處理完成！', 'success');
+            progressText.textContent = '處理完成！';
+            
+            const blob = new Blob([JSON.stringify(processedData, null, 2)], 
+                                 { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            downloadBtn.href = url;
+            downloadSection.style.display = 'block';
+            
+            processBtn.disabled = false;
+        });
+        
+        async function processWord(wordData) {
+            const result = {
+                id: wordData.id,
+                word: wordData.word,
+                us_audio: "N/A",
+                natural_audio: "N/A", 
+                pos: "N/A"
+            };
+            
+            // 獲取 Free Dictionary API 資料
+            try {
+                const dictResponse = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${wordData.word}`);
+                if (dictResponse.ok) {
+                    const dictData = await dictResponse.json();
+                    if (dictData && dictData.length > 0) {
+                        const entry = dictData[0];
+                        
+                        // 獲取自然發音
+                        if (entry.phonetics && entry.phonetics.length > 0) {
+                            for (const phonetic of entry.phonetics) {
+                                if (phonetic.audio) {
+                                    result.natural_audio = phonetic.audio;
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        // 獲取詞性
+                        if (entry.meanings && entry.meanings.length > 0) {
+                            const meaning = entry.meanings[0];
+                            result.pos = meaning.partOfSpeech || "N/A";
+                        }
+                    }
+                }
+            } catch (error) {
+                addLog(`Free Dictionary API 錯誤 (${wordData.word}): ${error.message}`, 'error');
+            }
+            
+            // 獲取 Merriam-Webster 美式發音
+            if (merriamKey.value.trim()) {
+                try {
+                    const mwResponse = await fetch(`https://www.dictionaryapi.com/api/v3/references/collegiate/json/${wordData.word}?key=${merriamKey.value.trim()}`);
+                    if (mwResponse.ok) {
+                        const mwData = await mwResponse.json();
+                        if (mwData && mwData.length > 0 && mwData[0].hwi && mwData[0].hwi.prs) {
+                            const prs = mwData[0].hwi.prs[0];
+                            if (prs.sound && prs.sound.audio) {
+                                const audioFile = prs.sound.audio;
+                                let subdir = audioFile.charAt(0);
+                                if (audioFile.startsWith('bix')) subdir = 'bix';
+                                if (audioFile.startsWith('gg')) subdir = 'gg';
+                                result.us_audio = `https://media.merriam-webster.com/audio/prons/en/us/mp3/${subdir}/${audioFile}.mp3`;
+                            }
+                        }
+                    }
+                } catch (error) {
+                    addLog(`Merriam-Webster API 錯誤 (${wordData.word}): ${error.message}`, 'error');
+                }
+            }
+            
+            return result;
+        }
+        
+        function updateProgress() {
+            const progress = (currentWord / wordsData.length) * 100;
+            progressFill.style.width = `${progress}%`;
+            progressText.textContent = `處理中... ${currentWord}/${wordsData.length} (${Math.round(progress)}%)`;
+        }
+        
+        function addLog(message, type = 'info') {
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+    </script>
+</body>
+</html>

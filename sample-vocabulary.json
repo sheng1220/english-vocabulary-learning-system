@@ -1,0 +1,94 @@
+{
+  "groups": {
+    "1-10": [
+      {
+        "id": 1,
+        "word": "posh",
+        "us_audio": "https://media.merriam-webster.com/audio/prons/en/us/mp3/p/posh0001.mp3",
+        "natural_audio": "https://ssl.gstatic.com/dictionary/static/sounds/20220808/posh--_gb_1.mp3",
+        "pos": "adjective"
+      },
+      {
+        "id": 2,
+        "word": "superb",
+        "us_audio": "N/A",
+        "natural_audio": "https://ssl.gstatic.com/dictionary/static/sounds/20220808/superb--_us_1.mp3",
+        "pos": "adjective"
+      },
+      {
+        "id": 3,
+        "word": "awesome",
+        "us_audio": "N/A",
+        "natural_audio": "https://ssl.gstatic.com/dictionary/static/sounds/20220808/awesome--_us_1.mp3",
+        "pos": "adjective"
+      },
+      {
+        "id": 4,
+        "word": "marvelous",
+        "us_audio": "N/A",
+        "natural_audio": "https://ssl.gstatic.com/dictionary/static/sounds/20220808/marvelous--_us_1.mp3",
+        "pos": "adjective"
+      },
+      {
+        "id": 5,
+        "word": "incredible",
+        "us_audio": "N/A",
+        "natural_audio": "https://ssl.gstatic.com/dictionary/static/sounds/20220808/incredible--_us_1.mp3",
+        "pos": "adjective"
+      }
+    ],
+    "11-20": [
+      {
+        "id": 6,
+        "word": "sink",
+        "us_audio": "N/A",
+        "natural_audio": "https://ssl.gstatic.com/dictionary/static/sounds/20220808/sink--_us_1.mp3",
+        "pos": "verb"
+      },
+      {
+        "id": 7,
+        "word": "flame",
+        "us_audio": "N/A",
+        "natural_audio": "https://ssl.gstatic.com/dictionary/static/sounds/20220808/flame--_us_1.mp3",
+        "pos": "noun"
+      },
+      {
+        "id": 8,
+        "word": "proud",
+        "us_audio": "N/A",
+        "natural_audio": "https://ssl.gstatic.com/dictionary/static/sounds/20220808/proud--_us_1.mp3",
+        "pos": "adjective"
+      },
+      {
+        "id": 9,
+        "word": "fresh",
+        "us_audio": "N/A",
+        "natural_audio": "https://ssl.gstatic.com/dictionary/static/sounds/20220808/fresh--_us_1.mp3",
+        "pos": "adjective"
+      }
+    ],
+    "21-30": [
+      {
+        "id": 10,
+        "word": "excited",
+        "us_audio": "N/A",
+        "natural_audio": "https://ssl.gstatic.com/dictionary/static/sounds/20220808/excited--_us_1.mp3",
+        "pos": "adjective"
+      },
+      {
+        "id": 11,
+        "word": "definitely",
+        "us_audio": "N/A",
+        "natural_audio": "https://ssl.gstatic.com/dictionary/static/sounds/20220808/definitely--_us_1.mp3",
+        "pos": "adverb"
+      },
+      {
+        "id": 12,
+        "word": "polish",
+        "us_audio": "N/A",
+        "natural_audio": "https://ssl.gstatic.com/dictionary/static/sounds/20220808/polish--_us_1.mp3",
+        "pos": "verb"
+      }
+    ]
+  }
+}
