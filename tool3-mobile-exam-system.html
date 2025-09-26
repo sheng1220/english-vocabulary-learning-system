@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英文聽寫考試系統 (手機優化版)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+        
+        .page {
+            display: none;
+            padding: 20px;
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        /* 設定頁樣式 */
+        .setting-group {
+            margin-bottom: 25px;
+            padding: 20px;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+        }
+        
+        .setting-title {
+            font-size: 1.1rem;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .group-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .group-btn {
+            padding: 12px 16px;
+            background: #ecf0f1;
+            color: #2c3e50;
+            border: 2px solid #bdc3c7;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .group-btn:hover {
+            background: #d5dbdb;
+            border-color: #95a5a6;
+        }
+        
+        .group-btn.selected {
+            background: #3498db;
+            color: white;
+            border-color: #2980b9;
+        }
+        
+        .group-btn.selected:hover {
+            background: #2980b9;
+        }
+        
+        .selection-info {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 12px;
+            color: #495057;
+            font-weight: 500;
+        }
+        
+        .number-input {
+            width: 100px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .slider {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #3498db;
+            cursor: pointer;
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #3498db;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .start-btn {
+            width: 100%;
+            padding: 15px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        
+        .start-btn:hover {
+            background: #229954;
+        }
+        
+        .start-btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+        
+        /* 音訊準備頁樣式 */
+        .audio-prep-content {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        .prep-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+        
+        .prep-title {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .prep-description {
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+        
+        .test-start-btn {
+            width: 200px;
+            height: 60px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 8px 16px rgba(231, 76, 60, 0.3);
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+        
+        .test-start-btn:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(231, 76, 60, 0.4);
+        }
+        
+        .loading-progress {
+            display: none;
+            margin-top: 20px;
+        }
+        
+        .loading-bar {
+            width: 100%;
+            height: 8px;
+            background: #ecf0f1;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .loading-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2980b9);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .loading-text {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        /* 音訊準備頁按鈕區域 */
+        .audio-prep-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-top: 20px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .audio-prep-buttons .test-start-btn {
+            flex: 0 0 200px;
+        }
+        
+        .audio-prep-buttons .control-button {
+            flex: 0 0 100px;
+        }
+        
+        /* 考試頁樣式 */
+        .exam-content {
+            text-align: center;
+            padding: 30px 20px;
+        }
+        
+        .progress {
+            font-size: 1.2rem;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+        
+        /* 簡化的時間計時器樣式 */
+        .time-counter {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 15px;
+            display: inline-block;
+            min-width: 80px;
+        }
+        
+        .time-counter-display {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #e74c3c;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+        }
+        
+        .play-control {
+            margin-bottom: 25px;
+        }
+        
+        .play-button {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 8px 16px rgba(231, 76, 60, 0.3);
+            transition: all 0.3s;
+            margin: 0 10px;
+        }
+        
+        .play-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 24px rgba(231, 76, 60, 0.4);
+        }
+        
+        .play-button.paused {
+            background: #27ae60;
+        }
+        
+        .current-word {
+            margin-bottom: 20px;
+        }
+        
+        .word-display {
+            font-size: 2rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-weight: bold;
+            min-height: 60px;
+            display: none;
+        }
+        
+        .word-display.visible {
+            display: block;
+        }
+        
+        .toggle-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        
+        .toggle-btn {
+            padding: 8px 16px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .toggle-btn:hover {
+            background: #2980b9;
+        }
+        
+        .toggle-btn.active {
+            background: #e67e22;
+        }
+        
+        .navigation-section {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .nav-button {
+            padding: 10px 20px;
+            background: #9b59b6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .nav-button:hover {
+            background: #8e44ad;
+        }
+        
+        .nav-button:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+        
+        .control-section {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .control-button {
+            padding: 10px 20px;
+            background: #95a5a6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .control-button:hover {
+            background: #7f8c8d;
+        }
+        
+        /* 答案頁樣式 */
+        .answer-list {
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        
+        .answer-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            gap: 15px;
+        }
+        
+        .answer-number {
+            width: 40px;
+            text-align: center;
+            font-weight: bold;
+            color: #3498db;
+        }
+        
+        .answer-word {
+            flex: 2;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .answer-group {
+            flex: 1;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .answer-id {
+            flex: 0.5;
+            color: #666;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+        
+        .answer-pos {
+            flex: 1;
+            color: #666;
+            font-style: italic;
+            font-size: 0.9rem;
+        }
+        
+        .retry-btn {
+            width: 100%;
+            padding: 15px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        
+        .retry-btn:hover {
+            background: #2980b9;
+        }
+        
+        .error-message {
+            background: #ffe6e6;
+            border: 1px solid #ff9999;
+            color: #cc0000;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        
+        .auto-play-status {
+            margin-top: 15px;
+            padding: 10px;
+            background: #e8f5e8;
+            border-radius: 4px;
+            color: #27ae60;
+            font-weight: 500;
+        }
+        
+        .auto-play-status.paused {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 5px;
+                border-radius: 8px;
+            }
+            
+            .page {
+                padding: 15px;
+            }
+            
+            .group-buttons {
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+                gap: 8px;
+            }
+            
+            .word-display {
+                font-size: 1.5rem;
+            }
+            
+            .play-button {
+                width: 80px;
+                height: 80px;
+                font-size: 1.2rem;
+            }
+            
+            .test-start-btn {
+                width: 180px;
+                height: 55px;
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎧 英文聽寫考試系統</h1>
+            <p id="headerSubtitle">手機優化版</p>
+        </div>
+        
+        <!-- 設定頁 -->
+        <div id="settingPage" class="page active">            
+            <div class="setting-group">
+                <div class="setting-title">📚 組別選擇</div>
+                <div class="group-buttons" id="groupButtons"></div>
+                <div class="selection-info" id="selectionInfo">請選擇組別</div>
+            </div>
+            
+            <div class="setting-group" id="examSettingsSection" style="display: none;">
+                <div class="setting-title">⚙️ 考試設定</div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label>考試題數: </label>
+                    <input type="number" class="number-input" id="questionCount" min="1" max="999" value="10">
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label>每字母秒數: </label>
+                    <div class="slider-container">
+                        <input type="range" class="slider" id="letterTime" min="0.5" max="3" step="0.1" value="1.0">
+                        <span id="letterTimeValue">1.0s</span>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="start-btn" id="startPrepBtn" onclick="goToAudioPrep()" disabled>下一步</button>
+        </div>
+        
+        <!-- 音訊準備頁 -->
+        <div id="audioPrepPage" class="page">
+            <div class="audio-prep-content">
+                <div class="prep-icon">🎵</div>
+                <div class="prep-title">音訊準備</div>
+                <div class="prep-description">
+                    系統將為您準備考試音檔<br>
+                    點擊下方按鈕開始測驗並激活音訊系統
+                </div>
+                
+                <div class="loading-progress" id="loadingProgress">
+                    <div class="loading-bar">
+                        <div class="loading-fill" id="loadingFill"></div>
+                    </div>
+                    <div class="loading-text" id="loadingText">正在準備音檔...</div>
+                </div>
+                
+                <div class="audio-prep-buttons">
+                    <button class="test-start-btn" id="testStartBtn" onclick="startAudioPreparation()">測驗開始</button>
+                    <button class="control-button" onclick="backToSettings()">返回設定</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 考試頁 -->
+        <div id="examPage" class="page">
+            <div class="exam-content">
+                <div class="progress" id="examProgress">第 1 題 / 共 10 題</div>
+                
+                <div class="time-counter" id="timeCounter">
+                    <div class="time-counter-display" id="timeDisplay">0.0s</div>
+                </div>
+                
+                <div class="play-control">
+                    <button class="play-button" id="playButton" onclick="toggleAutoPlay()">⏸</button>
+                    <div class="auto-play-status" id="autoPlayStatus">自動播放中...</div>
+                </div>
+                
+                <div class="current-word">
+                    <div class="word-display" id="wordDisplay"></div>
+                </div>
+                
+                <div class="toggle-buttons">
+                    <button class="toggle-btn" id="toggleWordBtn" onclick="toggleWordDisplay()">顯示單字</button>
+                </div>
+                
+                <div class="navigation-section">
+                    <button class="nav-button" id="prevBtn" onclick="previousWord()">⬅ 上一題</button>
+                    <button class="nav-button" id="nextBtn" onclick="nextWord()">下一題 ➡</button>
+                </div>
+                
+                <div class="control-section">
+                    <button class="control-button" onclick="backToSettings()">返回設定</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 答案頁 -->
+        <div id="answerPage" class="page">
+            <div class="setting-title" style="text-align: center; margin-bottom: 20px;">📋 考試答案</div>
+            <div class="answer-list" id="answerList"></div>
+            <button class="retry-btn" onclick="backToSettings()">重新開始</button>
+        </div>
+    </div>
+
+    <!-- 引入外部資料檔案 -->
+    <script src="vocabulary-data.js"></script>
+    
+    <script>
+        let selectedGroups = new Set();
+        let selectedWords = [];
+        let examWords = [];
+        let currentWordIndex = 0;
+        let isAutoPlaying = false;
+        let isPaused = false;
+        let autoPlayTimer = null;
+        let isWordVisible = false;
+        
+        // 音檔池和載入相關
+        let audioPool = {};
+        let audioLoadPromises = [];
+        let totalAudioFiles = 0;
+        let loadedAudioFiles = 0;
+        let currentPlayingAudio = null;
+        let isPlayingWord = false;
+        let wordTimer = null;
+        let wordStartTime = 0;
+        let wordTotalTime = 0;
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeGroupButtons();
+            document.getElementById('letterTime').addEventListener('input', updateLetterTimeDisplay);
+        });
+        
+        function initializeGroupButtons() {
+            const groupButtons = document.getElementById('groupButtons');
+            groupButtons.innerHTML = '';
+            
+            Object.keys(vocabularyData.groups).forEach(groupName => {
+                const button = document.createElement('button');
+                button.className = 'group-btn';
+                button.textContent = groupName;
+                button.onclick = () => toggleGroup(groupName, button);
+                groupButtons.appendChild(button);
+            });
+        }
+        
+        function toggleGroup(groupName, button) {
+            if (selectedGroups.has(groupName)) {
+                selectedGroups.delete(groupName);
+                button.classList.remove('selected');
+            } else {
+                selectedGroups.add(groupName);
+                button.classList.add('selected');
+            }
+            
+            updateSelectionInfo();
+            updateStartButton();
+        }
+        
+        function updateSelectionInfo() {
+            selectedWords = [];
+            selectedGroups.forEach(groupName => {
+                const words = vocabularyData.groups[groupName];
+                // 為每個單字添加group資訊
+                const wordsWithGroup = words.map(word => ({...word, group: groupName}));
+                selectedWords = selectedWords.concat(wordsWithGroup);
+            });
+            
+            const selectionInfo = document.getElementById('selectionInfo');
+            const questionCount = document.getElementById('questionCount');
+            
+            if (selectedWords.length > 0) {
+                selectionInfo.textContent = `已選擇 ${selectedGroups.size} 個組別，共 ${selectedWords.length} 個單字`;
+                questionCount.value = selectedWords.length;
+                questionCount.max = selectedWords.length;
+                document.getElementById('examSettingsSection').style.display = 'block';
+            } else {
+                selectionInfo.textContent = '請選擇組別';
+                document.getElementById('examSettingsSection').style.display = 'none';
+            }
+        }
+        
+        function updateStartButton() {
+            const canStart = selectedWords.length > 0;
+            document.getElementById('startPrepBtn').disabled = !canStart;
+        }
+        
+        function updateLetterTimeDisplay() {
+            const value = document.getElementById('letterTime').value;
+            document.getElementById('letterTimeValue').textContent = `${value}s`;
+        }
+        
+        function goToAudioPrep() {
+            const questionCount = parseInt(document.getElementById('questionCount').value);
+            
+            // 確保題數不超過可用單字數
+            const actualQuestionCount = Math.min(questionCount, selectedWords.length);
+            
+            // 隨機選取單字
+            examWords = [];
+            const availableWords = [...selectedWords];
+            
+            // 正確的隨機選取邏輯
+            for (let i = 0; i < actualQuestionCount; i++) {
+                if (availableWords.length === 0) break;
+                const randomIndex = Math.floor(Math.random() * availableWords.length);
+                examWords.push(availableWords.splice(randomIndex, 1)[0]);
+            }
+            
+            console.log(`設定題數: ${questionCount}, 實際題數: ${examWords.length}`);
+            
+            // 切換到音訊準備頁
+            document.getElementById('settingPage').classList.remove('active');
+            document.getElementById('audioPrepPage').classList.add('active');
+            document.getElementById('headerSubtitle').textContent = '音訊準備中...';
+        }
+        
+        async function startAudioPreparation() {
+            const testStartBtn = document.getElementById('testStartBtn');
+            const loadingProgress = document.getElementById('loadingProgress');
+            const loadingFill = document.getElementById('loadingFill');
+            const loadingText = document.getElementById('loadingText');
+            
+            // 隱藏按鈕，顯示載入進度
+            testStartBtn.style.display = 'none';
+            loadingProgress.style.display = 'block';
+            
+            // 激活音訊上下文（重要！）
+            try {
+                // 創建一個短暫的靜音音檔來激活音訊上下文
+                const silentAudio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmsfBDuY3PLPeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmsfBDuY3PLPeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmsfBDuY3PLPeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmsfBDuY3PLPeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmsfBDuY3PLPeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmsfBDuY3PLPeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmsfBDuY3PLPeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmsfBDuY3PLPeSwF');
+                await silentAudio.play();
+                silentAudio.pause();
+            } catch (e) {
+                console.log('無法激活音訊上下文，但會繼續嘗試');
+            }
+            
+            // 計算需要載入的音檔總數
+            totalAudioFiles = 0;
+            examWords.forEach(word => {
+                if (word.us_audio && word.us_audio !== 'N/A') totalAudioFiles++;
+                if (word.natural_audio && word.natural_audio !== 'N/A') totalAudioFiles++;
+            });
+            
+            loadedAudioFiles = 0;
+            audioPool = {};
+            audioLoadPromises = [];
+            
+            // 開始預載入所有音檔
+            for (let i = 0; i < examWords.length; i++) {
+                const word = examWords[i];
+                audioPool[i] = {};
+                
+                // 載入美式發音
+                if (word.us_audio && word.us_audio !== 'N/A') {
+                    audioLoadPromises.push(loadAudioFile(word.us_audio, i, 'us'));
+                }
+                
+                // 載入自然發音
+                if (word.natural_audio && word.natural_audio !== 'N/A') {
+                    audioLoadPromises.push(loadAudioFile(word.natural_audio, i, 'natural'));
+                }
+            }
+            
+            try {
+                // 等待所有音檔載入完成
+                await Promise.allSettled(audioLoadPromises);
+                
+                loadingFill.style.width = '100%';
+                loadingText.textContent = '準備完成！';
+                
+                // 等待一下然後進入考試
+                setTimeout(() => {
+                    startExam();
+                }, 500);
+                
+            } catch (error) {
+                console.error('音檔載入過程中出現錯誤:', error);
+                loadingText.textContent = '準備完成（部分音檔可能無法載入）';
+                
+                setTimeout(() => {
+                    startExam();
+                }, 1000);
+            }
+        }
+        
+        function loadAudioFile(url, wordIndex, audioType) {
+            return new Promise((resolve, reject) => {
+                const audio = new Audio();
+                
+                audio.addEventListener('canplaythrough', () => {
+                    loadedAudioFiles++;
+                    updateLoadingProgress();
+                    resolve();
+                });
+                
+                audio.addEventListener('error', (e) => {
+                    console.warn(`音檔載入失敗: ${url}`, e);
+                    loadedAudioFiles++;
+                    updateLoadingProgress();
+                    resolve(); // 即使失敗也繼續
+                });
+                
+                audio.preload = 'auto';
+                audio.src = url;
+                audioPool[wordIndex][audioType] = audio;
+            });
+        }
+        
+        function updateLoadingProgress() {
+            const progress = (loadedAudioFiles / totalAudioFiles) * 100;
+            const loadingFill = document.getElementById('loadingFill');
+            const loadingText = document.getElementById('loadingText');
+            
+            loadingFill.style.width = `${progress}%`;
+            loadingText.textContent = `正在準備音檔... (${loadedAudioFiles}/${totalAudioFiles})`;
+        }
+        
+        function startExam() {
+            currentWordIndex = 0;
+            isWordVisible = false;
+            
+            // 切換到考試頁
+            document.getElementById('audioPrepPage').classList.remove('active');
+            document.getElementById('examPage').classList.add('active');
+            document.getElementById('headerSubtitle').textContent = '聽寫中...';
+            
+            // 重置顯示狀態
+            document.getElementById('wordDisplay').classList.remove('visible');
+            document.getElementById('toggleWordBtn').classList.remove('active');
+            document.getElementById('toggleWordBtn').textContent = '顯示單字';
+            
+            loadCurrentWord();
+            startAutoPlay();
+        }
+        
+        function loadCurrentWord() {
+            if (currentWordIndex >= examWords.length) {
+                stopAutoPlay();
+                showAnswers();
+                return;
+            }
+            
+            const word = examWords[currentWordIndex];
+            const progress = document.getElementById('examProgress');
+            progress.textContent = `第 ${currentWordIndex + 1} 題 / 共 ${examWords.length} 題`;
+            
+            document.getElementById('wordDisplay').textContent = word.word;
+            
+            // 更新導航按鈕狀態
+            document.getElementById('prevBtn').disabled = currentWordIndex === 0;
+            document.getElementById('nextBtn').disabled = currentWordIndex === examWords.length - 1;
+            
+            // 如果單字顯示狀態是開啟的，確保顯示
+            if (isWordVisible) {
+                document.getElementById('wordDisplay').classList.add('visible');
+            }
+            
+            // 時間計時器會在startWordTimer時自動更新
+        }
+        
+        async function startAutoPlay() {
+            isAutoPlaying = true;
+            isPaused = false;
+            updatePlayButton();
+            updateAutoPlayStatus();
+            
+            await playCurrentWordLoop();
+        }
+        
+        async function playCurrentWordLoop() {
+            // 嚴格檢查狀態，避免重複執行
+            if (!isAutoPlaying || isPaused || currentWordIndex >= examWords.length || isPlayingWord) {
+                return;
+            }
+            
+            isPlayingWord = true;
+            
+            // 開始時間計時器
+            startWordTimer();
+            
+            try {
+                await playCurrentWordFromPool();
+                
+                // 播放完成後檢查狀態
+                if (isAutoPlaying && !isPaused && isPlayingWord) {
+                    // 單字總播放時間 = 每字母秒數 × 單字字母數（包含音檔播放和間隔）
+                    const word = examWords[currentWordIndex];
+                    const letterTime = parseFloat(document.getElementById('letterTime').value);
+                    const totalWordTime = word.word.length * letterTime * 1000;
+                    
+                    autoPlayTimer = setTimeout(() => {
+                        if (isAutoPlaying && !isPaused && isPlayingWord) {
+                            isPlayingWord = false;
+                            currentWordIndex++;
+                            loadCurrentWord();
+                            playCurrentWordLoop();
+                        }
+                    }, totalWordTime);
+                } else {
+                    isPlayingWord = false;
+                }
+            } catch (error) {
+                console.error('播放錯誤:', error);
+                showError('音檔播放異常，跳到下一題');
+                // 即使出錯也繼續下一題
+                autoPlayTimer = setTimeout(() => {
+                    if (isAutoPlaying && !isPaused && isPlayingWord) {
+                        isPlayingWord = false;
+                        currentWordIndex++;
+                        loadCurrentWord();
+                        playCurrentWordLoop();
+                    }
+                }, 2000); // 保持一致的間隔
+            }
+        }
+        
+        async function playCurrentWordFromPool() {
+            const wordIndex = currentWordIndex;
+            const word = examWords[wordIndex];
+            const letterTime = parseFloat(document.getElementById('letterTime').value);
+            const wordInterval = word.word.length * letterTime * 1000;
+            
+            const audioQueue = [];
+            
+            // 從音檔池中取得音檔
+            if (audioPool[wordIndex] && audioPool[wordIndex].us) {
+                audioQueue.push(audioPool[wordIndex].us);
+            }
+            
+            if (audioPool[wordIndex] && audioPool[wordIndex].natural) {
+                audioQueue.push(audioPool[wordIndex].natural);
+            }
+            
+            if (audioQueue.length === 0) {
+                throw new Error('無可用音檔');
+            }
+            
+            // 依序播放音檔
+            for (let i = 0; i < audioQueue.length; i++) {
+                if (!isAutoPlaying || isPaused) break;
+                
+                await playAudioFromPool(audioQueue[i]);
+                
+                if (i < audioQueue.length - 1 && isAutoPlaying && !isPaused) {
+                    await sleep(1000); // 1秒間隔
+                }
+            }
+            
+            // 移除額外的wordInterval等待，使間隔更一致
+            // 現在單純依賴playCurrentWordLoop中的2秒間隔
+        }
+        
+        function playAudioFromPool(audioElement) {
+            return new Promise((resolve, reject) => {
+                if (!audioElement) {
+                    reject(new Error('音檔不存在'));
+                    return;
+                }
+                
+                // 停止之前的播放
+                if (currentPlayingAudio && currentPlayingAudio !== audioElement) {
+                    currentPlayingAudio.pause();
+                }
+                
+                currentPlayingAudio = audioElement;
+                audioElement.currentTime = 0; // 重置播放位置
+                
+                audioElement.onended = () => {
+                    currentPlayingAudio = null;
+                    resolve();
+                };
+                audioElement.onerror = () => {
+                    currentPlayingAudio = null;
+                    reject(new Error('音檔播放失敗'));
+                };
+                
+                audioElement.play().catch(err => {
+                    currentPlayingAudio = null;
+                    reject(err);
+                });
+            });
+        }
+        
+        function toggleAutoPlay() {
+            if (!isAutoPlaying) {
+                startAutoPlay();
+            } else {
+                if (isPaused) {
+                    resumeAutoPlay();
+                } else {
+                    pauseAutoPlay();
+                }
+            }
+        }
+        
+        function pauseAutoPlay() {
+            isPaused = true;
+            stopCurrentPlayback();
+            updatePlayButton();
+            updateAutoPlayStatus();
+        }
+        
+        function resumeAutoPlay() {
+            isPaused = false;
+            updatePlayButton();
+            updateAutoPlayStatus();
+            playCurrentWordLoop();
+        }
+        
+        function stopAutoPlay() {
+            isAutoPlaying = false;
+            isPaused = false;
+            stopCurrentPlayback();
+            updatePlayButton();
+            updateAutoPlayStatus();
+        }
+        
+        function stopCurrentPlayback() {
+            // 清理所有播放狀態
+            clearTimeout(autoPlayTimer);
+            stopWordTimer();
+            isPlayingWord = false;
+            
+            // 停止當前播放的音檔
+            if (currentPlayingAudio) {
+                currentPlayingAudio.pause();
+                currentPlayingAudio.currentTime = 0;
+                currentPlayingAudio = null;
+            }
+            
+            // 停止所有可能正在播放的音檔
+            Object.values(audioPool).forEach(wordAudioSet => {
+                Object.values(wordAudioSet).forEach(audio => {
+                    if (audio && !audio.paused) {
+                        audio.pause();
+                        audio.currentTime = 0;
+                    }
+                });
+            });
+        }
+        
+        function updatePlayButton() {
+            const playButton = document.getElementById('playButton');
+            if (!isAutoPlaying) {
+                playButton.textContent = '▶';
+                playButton.classList.remove('paused');
+            } else if (isPaused) {
+                playButton.textContent = '▶';
+                playButton.classList.add('paused');
+            } else {
+                playButton.textContent = '⏸';
+                playButton.classList.remove('paused');
+            }
+        }
+        
+        function updateAutoPlayStatus() {
+            const statusElement = document.getElementById('autoPlayStatus');
+            if (!isAutoPlaying) {
+                statusElement.textContent = '已停止';
+                statusElement.classList.add('paused');
+            } else if (isPaused) {
+                statusElement.textContent = '已暫停';
+                statusElement.classList.add('paused');
+            } else {
+                statusElement.textContent = '自動播放中...';
+                statusElement.classList.remove('paused');
+            }
+        }
+        
+        function previousWord() {
+            if (currentWordIndex > 0) {
+                // 完全停止當前播放
+                stopCurrentPlayback();
+                
+                currentWordIndex--;
+                loadCurrentWord();
+                
+                if (isAutoPlaying && !isPaused) {
+                    // 稍微延遲後重新開始播放，確保狀態清理完成
+                    setTimeout(() => {
+                        if (isAutoPlaying && !isPaused) {
+                            playCurrentWordLoop();
+                        }
+                    }, 100);
+                }
+            }
+        }
+        
+        function nextWord() {
+            if (currentWordIndex < examWords.length - 1) {
+                // 完全停止當前播放
+                stopCurrentPlayback();
+                
+                currentWordIndex++;
+                loadCurrentWord();
+                
+                if (isAutoPlaying && !isPaused) {
+                    // 稍微延遲後重新開始播放，確保狀態清理完成
+                    setTimeout(() => {
+                        if (isAutoPlaying && !isPaused) {
+                            playCurrentWordLoop();
+                        }
+                    }, 100);
+                }
+            } else {
+                // 最後一題，結束考試
+                stopAutoPlay();
+                showAnswers();
+            }
+        }
+        
+        function toggleWordDisplay() {
+            const wordDisplay = document.getElementById('wordDisplay');
+            const toggleBtn = document.getElementById('toggleWordBtn');
+            
+            isWordVisible = !isWordVisible;
+            
+            if (isWordVisible) {
+                wordDisplay.classList.add('visible');
+                toggleBtn.classList.add('active');
+                toggleBtn.textContent = '隱藏單字';
+            } else {
+                wordDisplay.classList.remove('visible');
+                toggleBtn.classList.remove('active');
+                toggleBtn.textContent = '顯示單字';
+            }
+        }
+        
+        function showAnswers() {
+            document.getElementById('examPage').classList.remove('active');
+            document.getElementById('answerPage').classList.add('active');
+            document.getElementById('headerSubtitle').textContent = '考試結果';
+            
+            const answerList = document.getElementById('answerList');
+            answerList.innerHTML = '';
+            
+            examWords.forEach((word, index) => {
+                const answerItem = document.createElement('div');
+                answerItem.className = 'answer-item';
+                
+                answerItem.innerHTML = `
+                    <div class="answer-number">${index + 1}</div>
+                    <div class="answer-word">${word.word}</div>
+                    <div class="answer-group">${word.group}</div>
+                    <div class="answer-id">${word.id}</div>
+                    <div class="answer-pos">${word.pos}</div>
+                `;
+                
+                answerList.appendChild(answerItem);
+            });
+        }
+        
+        function backToSettings() {
+            stopAutoPlay();
+            
+            document.getElementById('examPage').classList.remove('active');
+            document.getElementById('answerPage').classList.remove('active');
+            document.getElementById('audioPrepPage').classList.remove('active');
+            document.getElementById('settingPage').classList.add('active');
+            document.getElementById('headerSubtitle').textContent = '手機優化版';
+            
+            // 重置狀態
+            currentWordIndex = 0;
+            isWordVisible = false;
+            examWords = [];
+            audioPool = {};
+            currentPlayingAudio = null;
+            isPlayingWord = false;
+            
+            // 完全重置組別選擇狀態（保持一致的介面）
+            selectedGroups.clear();
+            selectedWords = [];
+            
+            // 重新初始化群組按鈕
+            initializeGroupButtons();
+            
+            // 重置顯示狀態
+            document.getElementById('selectionInfo').textContent = '請選擇組別';
+            document.getElementById('examSettingsSection').style.display = 'none';
+            document.getElementById('startPrepBtn').disabled = true;
+            
+            // 重置音訊準備頁面
+            document.getElementById('testStartBtn').style.display = 'block';
+            document.getElementById('loadingProgress').style.display = 'none';
+            document.getElementById('loadingFill').style.width = '0%';
+            document.getElementById('loadingText').textContent = '正在準備音檔...';
+        }
+        
+        function showError(message) {
+            const progress = document.getElementById('examProgress');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.textContent = message;
+            progress.parentNode.insertBefore(errorDiv, progress.nextSibling);
+            
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 3000);
+        }
+        
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+        
+        // 時間計時器相關函數
+        function startWordTimer() {
+            const word = examWords[currentWordIndex];
+            const letterTime = parseFloat(document.getElementById('letterTime').value);
+            wordTotalTime = word.word.length * letterTime * 1000; // 毫秒
+            wordStartTime = Date.now();
+            
+            // 立即更新一次顯示
+            updateTimeDisplay();
+            
+            // 每100毫秒更新一次顯示
+            wordTimer = setInterval(updateTimeDisplay, 100);
+        }
+        
+        function stopWordTimer() {
+            if (wordTimer) {
+                clearInterval(wordTimer);
+                wordTimer = null;
+            }
+        }
+        
+        function updateTimeDisplay() {
+            if (!isPlayingWord || currentWordIndex >= examWords.length) {
+                document.getElementById('timeDisplay').textContent = '0.0s';
+                return;
+            }
+            
+            const elapsed = Date.now() - wordStartTime;
+            const remaining = Math.max(0, wordTotalTime - elapsed);
+            const remainingSeconds = (remaining / 1000).toFixed(1);
+            
+            document.getElementById('timeDisplay').textContent = `${remainingSeconds}s`;
+            
+            // 根據剩餘時間改變顏色
+            const timeDisplay = document.getElementById('timeDisplay');
+            const percentage = remaining / wordTotalTime;
+            
+            if (percentage > 0.5) {
+                timeDisplay.style.color = '#27ae60'; // 綠色
+            } else if (percentage > 0.25) {
+                timeDisplay.style.color = '#f39c12'; // 橙色
+            } else {
+                timeDisplay.style.color = '#e74c3c'; // 紅色
+            }
+        }
+        
+        // 移除多餘的資訊顯示函數，只保留簡潔的倒數計時
+    </script>
+</body>
+</html>
